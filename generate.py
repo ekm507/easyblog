@@ -62,6 +62,7 @@ def generate_index(index_html_template, index_post_list_template, post_details):
     return output
 
 def copy_all(srcdir, dstdir):
+    os.makedirs(dstdir, exist_ok=True)
     for q in os.listdir(srcdir):
         shutil.copy(os.path.join(srcdir, q), dstdir)
 
@@ -79,7 +80,7 @@ os.makedirs('output', exist_ok=True)
 shutil.copy('theme/post_stylesheet.css', 'output')
 shutil.copy('theme/index_stylesheet.css', 'output')
 
-copy_all('content/img', 'output/img')
+copy_all('content/img/', 'output/img/')
 
 mdfiles = list(filter(lambda x:x.endswith('.md'), os.listdir('content')))
 
