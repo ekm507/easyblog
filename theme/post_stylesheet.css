@@ -1,0 +1,111 @@
+/* Global styles */
+body {
+    font-family: Sahel, sans-serif;
+    background-color: #f8f8f8;
+    background-color: #f8f8f8;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+}
+
+
+.fixed-width {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: -webkit-calc(800px - (30px * 2));
+    max-width: calc(800px - 30px * 2);
+  }
+
+.card {
+    height: 100%;
+    background-color: #FFFFFF;
+    border-style: dashed;
+    border-color: pink;
+    padding: 0 0.5em;
+    margin: auto 1em;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Header styles */
+h1 {
+    color: #333;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+h2 {
+    color: #555;
+    font-size: 26px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+h3 {
+    color: #777;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Post text styles */
+p {
+    line-height: 1.6;
+    font-size: 16px;
+    margin: 20px 0;
+}
+
+/* Links styles */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Button styles */
+.button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive design */
+@media screen and (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+}
+
