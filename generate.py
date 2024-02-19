@@ -37,25 +37,29 @@ def md_to_html(mdfile_text, html_template):
 
     jdate = jdatetime.datetime.fromisoformat(date)
     
-    jday = english_to_farsi_nums(str(jdate.day))
-    jmonth = jdate.j_months_fa[jdate.month]
-    jyear = english_to_farsi_nums(str(jdate.year))
-    jdate_str = f"{jday} {jmonth} {jyear}"
-    # print(jdate_str)
-    
     mdparser = MarkdownIt()
     body_html = mdparser.render(body_text)
 
     output = html_template.replace("TITLE", title).replace("POST", body_html)
     
-    return output, title, jdate_str
+    return output, title, jdate
 
+def get_jdate_str(jdate):
+    jday = english_to_farsi_nums(str(jdate.day))
+    jmonth = jdate.j_months_fa[jdate.month]
+    jyear = english_to_farsi_nums(str(jdate.year))
+    jdate_str = f"{jday} {jmonth} {jyear}"
+
+    return jdate_str
 
 def generate_index(index_html_template, index_post_list_template, post_details):
+
+    post_details.sort(key=lambda a:a[2], reverse=True)
+
     posts_html_list = ''
     for post in post_details:
         title, link, date = post
-        post_part = index_post_list_template.replace("TITLE", title).replace("LINK", link).replace("DATE", date)
+        post_part = index_post_list_template.replace("TITLE", title).replace("LINK", link).replace("DATE", get_jdate_str(date))
         posts_html_list += post_part
     
     output = index_html_template.replace("POSTS", posts_html_list)
