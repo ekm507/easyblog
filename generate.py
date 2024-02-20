@@ -25,12 +25,12 @@ def md_to_html(mdfile_text, html_template):
     header_lines = lines[0]
     body_text = '---\n'.join(lines[1:])
     try:
-        title = re.findall('title *: *(.*)', header_lines)[0]
+        title = re.findall('(?:title|عنوان) *: *(.*)', header_lines)[0]
     except IndexError:
         title = "***"
         print(f"post does not have title. set to ***")
     try:
-        date = re.findall('date *: *(.*)', header_lines)[0]
+        date = re.findall('(?:date|تاریخ) *: *(.*)', header_lines)[0]
     except IndexError:
         date = '۱۴۰۰-۰۱-۰۱'
         print("post does not have date. set to ***")
@@ -46,7 +46,7 @@ def md_to_html(mdfile_text, html_template):
 
 def get_jdate_str(jdate):
     jday = english_to_farsi_nums(str(jdate.day))
-    jmonth = jdate.j_months_fa[jdate.month]
+    jmonth = jdate.j_months_fa[jdate.month - 1]
     jyear = english_to_farsi_nums(str(jdate.year))
     jdate_str = f"{jday} {jmonth} {jyear}"
 
