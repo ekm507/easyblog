@@ -28,8 +28,8 @@ tree
 ```
 ├── content
 │   ├── img
-│   │   └── leather.jpg
-│   ├── hi.md
+│   │   └── new.jpg
+│   ├── new.md
 ├── generate.py
 ├── output
 ├── README.md
