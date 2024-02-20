@@ -188,14 +188,19 @@ h6 {
 }
 
 a {
-    color: var(--primary-color);
-    font-weight: bold
+    color: var(--fg-color);
+    font-weight: bold;
+    text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline wavy;
-    -webkit-text-decoration: underline wavy
+    color: var(--orange-fg);
 }
+
+a:visited {
+    color: #A0A0A0;
+}
+
 
 small {
     color: var(--fg-muted-5);
@@ -1016,4 +1021,17 @@ img:not(.no-hover):hover {
 
 .tags .tag::before {
     content: "#"
+}
+
+@media screen and (max-width: 400px) {
+    .date {
+      display: none;
+    color: var(--primary-color);
+
+    }
+  }
+
+.date {
+    color: var(--primary-color);
+
 }
