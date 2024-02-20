@@ -31,7 +31,7 @@
     --content-width: 720px;
     --edge-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     --font-monospace: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
-    --font-serif: Rockwell, "Rockwell Nova", "Roboto Slab", "DejaVu Serif", "Sitka Small", serif;
+    --font-serif: Rockwell, Sahel;
     --font-system: system-ui, sans-serif;
     --rounded-corner-small: 8px;
     --rounded-corner: 12px;
@@ -47,7 +47,7 @@
     :root {
         color-scheme: dark;
         --bg-color: var(--bg-color-d);
-        --fg-color: rgb(255, 255, 255);
+        --fg-color: rgb(184, 184, 184);
         --fg-muted-1: rgba(255, 255, 255, 0.05);
         --fg-muted-2: rgba(255, 255, 255, 0.1);
         --fg-muted-3: rgba(255, 255, 255, 0.2);
@@ -72,7 +72,7 @@
 }
 
 html {
-    font-size: 16px;
+    font-size: 18px;
     scroll-behavior: smooth;
     accent-color: var(--primary-color);
     overflow-wrap: break-word
@@ -188,13 +188,18 @@ h6 {
 }
 
 a {
-    color: var(--primary-color);
+    color: var(--primay-color);
     font-weight: bold
 }
 
 a:hover {
     text-decoration: underline wavy;
     -webkit-text-decoration: underline wavy
+}
+
+a:visited {
+    color: var(--primay-color);
+
 }
 
 small {
