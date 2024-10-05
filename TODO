@@ -1,7 +1,7 @@
 - [x] read the website information from a toml file
 - [x] use jinja tmepleates rendering for themes/templeates
 - [x] add pre-commit hooks
-- [ ] update readme based on new themes structure
-- [ ] set a directory fot posts content (subdir in output)
-- [ ] get website root URL and put other links based on it
+- [x] set a directory fot posts content (subdir in output)
+- [x] get website root URL and put other links based on it
+- [ ] update README.md based on new themes structure
 - [ ] write tests

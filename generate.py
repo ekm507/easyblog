@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/env python3
 
 import os
 import re
@@ -15,31 +15,19 @@ from feedgen import generate_feed
 from models import BlogInfo, PostDetail, PostListDetail
 
 OUTPUT_DIR = Path("output")
+CONTENT_DIR = Path("content")
+BLOG_DIR = OUTPUT_DIR / "blog"
 
 TEMPLATES_PATHS = {
     "index_html": "index.html",
     "post_html": "post.html",
 }
 
-environment = jinja2.Environment(
+STYLES_DIR = Path("theme/css")
+
+template_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader("theme/"),
 )
-
-
-def english_to_farsi_nums(num: str) -> str:
-    nums_map = {
-        "0": "۰",
-        "1": "۱",
-        "2": "۲",
-        "3": "۳",
-        "4": "۴",
-        "5": "۵",
-        "6": "۶",
-        "7": "۷",
-        "8": "۸",
-        "9": "۹",
-    }
-    return "".join([nums_map[x] for x in num])
 
 
 def read_post_from_markdown(md_text: str) -> PostDetail:
@@ -47,17 +35,28 @@ def read_post_from_markdown(md_text: str) -> PostDetail:
     header_lines = lines[0]
     body_text = "---\n".join(lines[1:])
     try:
-        title = re.findall("(?:title|عنوان) *: *(.*)", header_lines)[0]
-    except IndexError:
-        title = "***"
-        print("post does not have title. set to ***")
-    try:
-        date = re.findall("(?:date|تاریخ) *: *(.*)", header_lines)[0]
-    except IndexError:
-        date = "۱۴۰۰-۰۱-۰۱"
-        print("post does not have date. set to ***")
+        title = re.search(r"(?:title|عنوان) *: *(?P<title>.*)", header_lines).group(
+            "title"
+        )
+    except AttributeError as err:
+        # TODO: show file name in error message
+        raise ValueError("post does not have title or title is invalid !") from err
 
-    jdate = jdatetime.date.fromisoformat(date)
+    try:
+        date_str = re.search(
+            r"(?:date|تاریخ) *: *(?P<date>\d{4}-\d{1,2}-\d{1,2})", header_lines
+        ).group("date")
+    except AttributeError as err:
+        # TODO: show file name in error message
+        raise ValueError("post does not have date or date is invalid !") from err
+
+    date_vars = [int(item) for item in date_str.split("-")]
+    jdate = jdatetime.date(
+        year=date_vars[0],
+        month=date_vars[1],
+        day=date_vars[2],
+        locale=jdatetime.FA_LOCALE,
+    )
 
     mdparser = MarkdownIt()
     body_html = mdparser.render(body_text)
@@ -66,22 +65,13 @@ def read_post_from_markdown(md_text: str) -> PostDetail:
     return post_object
 
 
-def get_jdate_str(jdate: jdatetime.date) -> str:
-    jday = english_to_farsi_nums(str(jdate.day))
-    jmonth = jdate.j_months_fa[jdate.month - 1]
-    jyear = english_to_farsi_nums(str(jdate.year))
-    jdate_str = f"{jday} {jmonth} {jyear}"
-
-    return jdate_str
-
-
 def generate_index_html(
     post_details: list[PostListDetail],
 ) -> str:
     # generate index.html content
     post_details.sort(key=lambda p: p.published_date, reverse=True)
     # TODO: set constants for paths
-    template = environment.get_template(name=TEMPLATES_PATHS["index_html"])
+    template = template_environment.get_template(name=TEMPLATES_PATHS["index_html"])
     output = template.render(posts=post_details)
 
     return output
@@ -92,16 +82,10 @@ def generate_post_html(
 ) -> str:
     # generate post.html file content
     # TODO: set constants for paths
-    template = environment.get_template(name=TEMPLATES_PATHS["post_html"])
+    template = template_environment.get_template(name=TEMPLATES_PATHS["post_html"])
     output = template.render(post=post_detail)
 
     return output
-
-
-def copy_all(srcdir: str | Path, dstdir: str | Path) -> None:
-    os.makedirs(dstdir, exist_ok=True)
-    for q in os.listdir(srcdir):
-        shutil.copy(os.path.join(srcdir, q), dstdir)
 
 
 def read_file(file_path: Path | str) -> str:
@@ -113,6 +97,14 @@ def read_file(file_path: Path | str) -> str:
 def write_file(file_path: Path | str, content: str) -> None:
     with open(file_path, "w") as file:
         file.write(content)
+
+
+def copy_dir(src_dir: str | Path, dest_dir: str | Path) -> None:
+    # Ensure the destination parent directory exists
+    dest_path = os.path.join(dest_dir, os.path.basename(src_dir))
+
+    # Copy the entire directory recursively
+    shutil.copytree(src_dir, dest_path, dirs_exist_ok=True)
 
 
 if __name__ == "__main__":
@@ -128,40 +120,46 @@ if __name__ == "__main__":
     )
     should_generate_feed: bool = config_data["generate_feed"]
     # set blog title in base.html
-    environment.globals["website_title"] = blog_info.title
+    template_environment.globals["website_title"] = blog_info.title
+    # define static files prefix
+    static_prefix_url = blog_info.website_url
+    static_prefix_url = (
+        static_prefix_url
+        if static_prefix_url.endswith("/")
+        else static_prefix_url + "/"
+    )
+    template_environment.globals["STATIC_PREFIX"] = static_prefix_url
 
-    # create output directory
-    os.makedirs("output", exist_ok=True)
+    # create output directories
+    OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+    BLOG_DIR.mkdir(exist_ok=True, parents=True)
+
     # TODO: use static content for stylesheets in jinja templates
     # copy stylesheets
-    shutil.copy("theme/post_stylesheet.css", "output")
-    shutil.copy("theme/index_stylesheet.css", "output")
-
-    # copy images
-    copy_all("content/img/", "output/img/")
+    copy_dir(STYLES_DIR, OUTPUT_DIR)
+    copy_dir(CONTENT_DIR / "img/", OUTPUT_DIR)
 
     # read contents
     posts_list_details: list[PostListDetail] = []
 
-    for md_filename in Path("content").glob("*.md"):
+    for md_filename in CONTENT_DIR.glob("*.md"):
         # read markdown and convert to html
         mdfile_text = read_file(file_path=md_filename)
         post_detail = read_post_from_markdown(md_text=mdfile_text)
         post_html_content = generate_post_html(post_detail=post_detail)
 
         # write html output
-        output_file_path = OUTPUT_DIR / md_filename.name.replace(
+        output_file_path = BLOG_DIR / md_filename.name.replace(
             md_filename.suffix, ".html"
         )
-        # TODO: create a seperate sub-directory for posts content
         write_file(file_path=output_file_path, content=post_html_content)
         posts_list_details.append(
             PostListDetail(
                 title=post_detail.title,
-                url=output_file_path.name,
+                url="/".join(
+                    output_file_path.parts[1:]
+                ),  # get path after output directory
                 published_date=post_detail.published_date,
-                published_date_str=get_jdate_str(jdate=post_detail.published_date),
-                published_date_geo=post_detail.published_date.togregorian(),
             )
         )
         print("new content file added :", output_file_path)
@@ -170,7 +168,7 @@ if __name__ == "__main__":
     index_html_content = generate_index_html(post_details=posts_list_details)
     index_html_path = OUTPUT_DIR / "index.html"
     write_file(file_path=index_html_path, content=index_html_content)
-    print("index.html file created !")
+    print("indexfile created at :", index_html_path)
 
     # generate rss feed
     if should_generate_feed:
