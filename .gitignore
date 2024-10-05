@@ -1,1 +1,4 @@
 output/*
+__pycache__/
+content/*.md
+!content/new.md

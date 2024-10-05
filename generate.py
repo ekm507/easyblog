@@ -1,3 +1,4 @@
+from datetime import date
 from typing import TypeAlias
 from markdown_it import MarkdownIt
 from pathlib import Path
@@ -5,9 +6,18 @@ import re
 import os
 import shutil
 import jdatetime
+from feedgen import generate_feed, BlogInfo, PostDetail as PostListDetail
 
 
 PostDetail: TypeAlias = tuple[str, str, jdatetime.datetime]
+
+
+BLOG_INFO: BlogInfo = {
+    "title": "My Blog Name",
+    "description": "Add here some description",
+    "website_url": "https://example.com/blog",
+    "feed_url": "https://example.com/blog/rss.xml",
+}
 
 
 def english_to_farsi_nums(num: str):
@@ -121,11 +131,17 @@ if __name__ == "__main__":
         ):
             # read markdown and convert to html
             mdfile_text = md_file.read()
-            post_html, title, date = md_to_html(mdfile_text, html_post_template)
+            post_html, title, jalali_date = md_to_html(mdfile_text, html_post_template)
             # write html output
             output_file.write(post_html)
-            posts_details.append((title, md_filename[:-3] + ".html", date))
-            print("new content file added :",md_filename)
+            posts_details.append(
+                (
+                    title,
+                    md_filename[:-3] + ".html",
+                    jalali_date,
+                )
+            )
+            print("new content file added :", md_filename)
 
     # generate index.html
     index_html = generate_index(
@@ -133,3 +149,21 @@ if __name__ == "__main__":
     )
     with open("output/index.html", "w") as index_html_file:
         index_html_file.write(index_html)
+
+    print("index.html file created !")
+
+    # generate rss feed
+    posts_list: list[PostListDetail] = [
+        {
+            "title": p[0],
+            "url": p[1],
+            "pub_date": date(year=p[2].year, month=p[2].month, day=p[2].day),
+        }
+        for p in posts_details
+    ]
+    feed_content = generate_feed(blog_info=BLOG_INFO, posts_list=posts_list)
+    feed_output_path = Path("output/rss.xml")
+    with open(feed_output_path, "w") as file:
+        file.write(feed_content)
+
+    print("rss feed generated :", feed_output_path)

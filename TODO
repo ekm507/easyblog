@@ -1,0 +1,4 @@
+- [ ] read the website information from a toml file
+- [ ] set a directory fot posts content (subdir in output)
+- [ ] get website root URL and put other links based on it
+- [ ] use jinja tmepleates rendering for themes/templeates
