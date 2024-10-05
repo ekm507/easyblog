@@ -4,6 +4,10 @@
 <head>
     <meta charset=UTF-8>
     <meta content="IE=edge" http-equiv=X-UA-Compatible>
+<link rel="icon" type="image/png" sizes="32x32" href="{{ STATIC_PREFIX }}assets/favicon-64.png">
+<link rel="icon" type="image/png" sizes="128x128" href="{{ STATIC_PREFIX }}assets/favicon-128.png">
+<!-- <link rel="manifest" href="/site.webmanifest"> -->
+
     <meta content="width=device-width,initial-scale=1" name=viewport>
     <meta content=#00bbdd name=theme-color>
 	<title>{{ website_title }}{% block title %}{% endblock %}</title>
@@ -20,22 +24,11 @@
 
 <body>
 
-    <header>
-        <div class=container id=main>
-            <div class="crt scanlines">
-                <pre class=z-code><code><span class="z-text z-plain"> > araste -f naqshe
-⠀⠀⠀⢠⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠀⡠⠀⠀⠠⠠⠀⠀⠠⠢⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀
-⢠⠈⢰⠘⠴⠝⠀⢀⠆⠤⠪⠅⠀⠀⢠⠀⣔⡂⠘⠬⠮⠂⠘⠤⠤⠜⠤⠣⠣⠃⠐⢽⠤⠜⠘⠤⠤⠜⠐⢽
-⠈⠒⠊⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠈⠒⠒⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠁⠀⠈⠁</span></code></pre>
-            </div>
-
-    </header>
-
 				{% block main %}
 
 				{% endblock %}
 
-    <footer id=site-footer>
+    <footer id="site-footer">
         <p title="Last built at 2024-02-19 13:55 +00:00">© Duckquill, 2024
         <p><a href=https://codeberg.org/daudix/duckquill>Website source</a>
         <p><small>Powered by <a href=https://www.getzola.org>Zola</a> and <a

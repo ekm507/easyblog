@@ -3,5 +3,17 @@
 - [x] add pre-commit hooks
 - [x] set a directory fot posts content (subdir in output)
 - [x] get website root URL and put other links based on it
+- [ ] add favicon
+- [ ] implement a way to overwrite the default theme (template files)
+- [ ] support other html files (static)
+- [ ] change the theme and make a clean structure
 - [ ] update README.md based on new themes structure
+- [ ] write github actions workflow
 - [ ] write tests
+
+
+
+
+# NOTE
+- all images should define in html files (not css)
+- put the theme images in theme directory

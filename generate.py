@@ -24,6 +24,7 @@ TEMPLATES_PATHS = {
 }
 
 STYLES_DIR = Path("theme/css")
+ASSETS_DIR = Path("theme/assets")
 
 template_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader("theme/"),
@@ -134,10 +135,11 @@ if __name__ == "__main__":
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
     BLOG_DIR.mkdir(exist_ok=True, parents=True)
 
-    # TODO: use static content for stylesheets in jinja templates
-    # copy stylesheets
+    # copy static data directories
     copy_dir(STYLES_DIR, OUTPUT_DIR)
+    copy_dir(ASSETS_DIR, OUTPUT_DIR)
     copy_dir(CONTENT_DIR / "img/", OUTPUT_DIR)
+    # TODO: copy any other html files (non-template)
 
     # read contents
     posts_list_details: list[PostListDetail] = []
