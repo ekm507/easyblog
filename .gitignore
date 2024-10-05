@@ -4,3 +4,4 @@ content/*.md
 !content/new.md
 content/img/
 !content/img/.gitkeep
+theme/pages/*.html

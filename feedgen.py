@@ -2,15 +2,11 @@ import jinja2
 
 from models import BlogInfo, PostListDetail
 
-environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader("theme/"),
-)
-template = environment.get_template("rss.xml.jinja")
-
 
 def generate_feed(
     blog_info: BlogInfo,
     posts_list: list[PostListDetail],
+    template: jinja2.Template,
 ) -> str:
     # render template
     content = template.render(

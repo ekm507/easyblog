@@ -17,18 +17,25 @@ from models import BlogInfo, PostDetail, PostListDetail
 
 OUTPUT_DIR = Path("output")
 CONTENT_DIR = Path("content")
+
+THEME_DIR = Path("theme")
+PAGES_DIR = THEME_DIR / "pages"
+
 BLOG_DIR = OUTPUT_DIR / "blog"
 
 TEMPLATES_PATHS = {
     "index_html": "index.html",
     "post_html": "post.html",
+    "rss": "rss.xml",
+    # just for ignore
+    "": "base.html",
 }
 
 STYLES_DIR = Path("theme/css")
 ASSETS_DIR = Path("theme/assets")
 
 template_environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader("theme/"),
+    loader=jinja2.FileSystemLoader(THEME_DIR),
 )
 
 
@@ -178,12 +185,26 @@ if __name__ == "__main__":
     # create output directories
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
     BLOG_DIR.mkdir(exist_ok=True, parents=True)
+    OUTPUT_PAGES_DIR = OUTPUT_DIR / PAGES_DIR.name
+    OUTPUT_PAGES_DIR.mkdir(exist_ok=True, parents=True)
 
     # copy static data directories
     copy_dir(STYLES_DIR, OUTPUT_DIR)
     copy_dir(ASSETS_DIR, OUTPUT_DIR)
     copy_dir(CONTENT_DIR / "img/", OUTPUT_DIR)
-    # TODO: copy any other html files (non-template)
+
+    # render static pages (html files)
+    for file_path in PAGES_DIR.glob("*.html"):
+        # render html
+        page_content = read_file(file_path=file_path)
+        rendered_content = template_environment.from_string(page_content).render()
+        page_output_path = OUTPUT_PAGES_DIR / file_path.name
+        # write to output
+        write_file(file_path=page_output_path, content=rendered_content)
+        print(
+            "new (static) html file added :",
+            page_output_path,
+        )
 
     # read contents
     posts_list_details: list[PostListDetail] = []
@@ -213,11 +234,14 @@ if __name__ == "__main__":
     index_html_content = generate_index_html(post_details=posts_list_details)
     index_html_path = OUTPUT_DIR / "index.html"
     write_file(file_path=index_html_path, content=index_html_content)
-    print("indexfile created at :", index_html_path)
+    print("index file created at :", index_html_path)
 
     # generate rss feed
     if should_generate_feed:
-        feed_content = generate_feed(blog_info=blog_info, posts_list=posts_list_details)
+        rss_template = template_environment.get_template(name=TEMPLATES_PATHS["rss"])
+        feed_content = generate_feed(
+            blog_info=blog_info, posts_list=posts_list_details, template=rss_template
+        )
         feed_output_path = OUTPUT_DIR / "rss.xml"
         with open(feed_output_path, "w") as file:
             file.write(feed_content)
