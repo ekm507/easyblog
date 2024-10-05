@@ -1,14 +1,14 @@
-from datetime import date
-from markdown_it import MarkdownIt
-from pathlib import Path
-import jinja2
-import re
 import os
+import re
 import shutil
-import jdatetime
-from feedgen import generate_feed
-from models import PostListDetail, PostDetail, BlogInfo
+from pathlib import Path
 
+import jdatetime
+import jinja2
+from markdown_it import MarkdownIt
+
+from feedgen import generate_feed
+from models import BlogInfo, PostDetail, PostListDetail
 
 OUTPUT_DIR = Path("output")
 
@@ -29,7 +29,7 @@ environment = jinja2.Environment(
 )
 
 
-def english_to_farsi_nums(num: str):
+def english_to_farsi_nums(num: str) -> str:
     nums_map = {
         "0": "۰",
         "1": "۱",
@@ -42,7 +42,7 @@ def english_to_farsi_nums(num: str):
         "8": "۸",
         "9": "۹",
     }
-    return "".join(list(map(lambda x: nums_map[x], num)))
+    return "".join([nums_map[x] for x in num])
 
 
 def read_post_from_markdown(md_text: str) -> PostDetail:

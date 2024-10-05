@@ -3,3 +3,4 @@
 - [ ] get website root URL and put other links based on it
 - [x] use jinja tmepleates rendering for themes/templeates
 - [ ] add pre-commit hooks
+- [ ] write tests

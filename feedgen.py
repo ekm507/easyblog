@@ -1,6 +1,6 @@
 import jinja2
-from models import BlogInfo, PostListDetail
 
+from models import BlogInfo, PostListDetail
 
 environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader("theme/"),

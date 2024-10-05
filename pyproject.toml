@@ -18,3 +18,26 @@ requires-python = ">= 3.11"
 managed = true
 virtual = true
 dev-dependencies = []
+
+
+[tool.behavior]
+use-uv = true
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "N",  # pep8 naming
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG001", # unused arguments in functions
+    "ASYNC", # flake8 async
+    "LOG", # flake8 logging
+    "ANN" # flake8 annotations,
+]
+unfixable = []
+
+ignore = ["ANN101"]
