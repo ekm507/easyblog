@@ -1,19 +1,5 @@
-from datetime import date
-from typing import TypedDict
 import jinja2
-
-
-class BlogInfo(TypedDict):
-    title: str
-    description: str
-    website_url: str
-    feed_url: str
-
-
-class PostDetail(TypedDict):
-    title: str
-    url: str
-    pub_date: date
+from models import BlogInfo, PostListDetail
 
 
 environment = jinja2.Environment(
@@ -24,14 +10,14 @@ template = environment.get_template("rss.xml.jinja")
 
 def generate_feed(
     blog_info: BlogInfo,
-    posts_list: list[PostDetail],
+    posts_list: list[PostListDetail],
 ) -> str:
     # render template
     content = template.render(
-        title=blog_info["title"],
-        description=["url"],
-        website_url=blog_info["website_url"],
-        feed_url=blog_info["feed_url"],
+        title=blog_info.title,
+        description=blog_info.description,
+        website_url=blog_info.website_url,
+        feed_url=blog_info.feed_url,
         posts=posts_list,
     )
 

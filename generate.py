@@ -1,23 +1,32 @@
 from datetime import date
-from typing import TypeAlias
 from markdown_it import MarkdownIt
 from pathlib import Path
+import jinja2
 import re
 import os
 import shutil
 import jdatetime
-from feedgen import generate_feed, BlogInfo, PostDetail as PostListDetail
+from feedgen import generate_feed
+from models import PostListDetail, PostDetail, BlogInfo
 
 
-PostDetail: TypeAlias = tuple[str, str, jdatetime.datetime]
+OUTPUT_DIR = Path("output")
 
+BLOG_INFO = BlogInfo(
+    title="My Blog Name",
+    description="Add here some description",
+    website_url="https://example.com/blog",
+    feed_url="https://example.com/blog/rss.xml",
+)
 
-BLOG_INFO: BlogInfo = {
-    "title": "My Blog Name",
-    "description": "Add here some description",
-    "website_url": "https://example.com/blog",
-    "feed_url": "https://example.com/blog/rss.xml",
+TEMPLATES_PATHS = {
+    "index_html": "index.html",
+    "post_html": "post.html",
 }
+
+environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader("theme/"),
+)
 
 
 def english_to_farsi_nums(num: str):
@@ -36,8 +45,8 @@ def english_to_farsi_nums(num: str):
     return "".join(list(map(lambda x: nums_map[x], num)))
 
 
-def md_to_html(mdfile_text: str, html_template: str) -> PostDetail:
-    lines = mdfile_text.split("---\n")
+def read_post_from_markdown(md_text: str) -> PostDetail:
+    lines = md_text.split("---\n")
     header_lines = lines[0]
     body_text = "---\n".join(lines[1:])
     try:
@@ -51,17 +60,16 @@ def md_to_html(mdfile_text: str, html_template: str) -> PostDetail:
         date = "۱۴۰۰-۰۱-۰۱"
         print("post does not have date. set to ***")
 
-    jdate = jdatetime.datetime.fromisoformat(date)
+    jdate = jdatetime.date.fromisoformat(date)
 
     mdparser = MarkdownIt()
     body_html = mdparser.render(body_text)
+    post_object = PostDetail(title=title, content=body_html, published_date=jdate)
 
-    output = html_template.replace("TITLE", title).replace("POST", body_html)
-
-    return output, title, jdate
+    return post_object
 
 
-def get_jdate_str(jdate: jdatetime.datetime) -> str:
+def get_jdate_str(jdate: jdatetime.date) -> str:
     jday = english_to_farsi_nums(str(jdate.day))
     jmonth = jdate.j_months_fa[jdate.month - 1]
     jyear = english_to_farsi_nums(str(jdate.year))
@@ -70,24 +78,26 @@ def get_jdate_str(jdate: jdatetime.datetime) -> str:
     return jdate_str
 
 
-def generate_index(
-    index_html_template: str,
-    index_post_list_template: str,
-    post_details: list[PostDetail],
+def generate_index_html(
+    post_details: list[PostListDetail],
 ) -> str:
-    post_details.sort(key=lambda a: a[2], reverse=True)
+    # generate index.html content
+    post_details.sort(key=lambda p: p.published_date, reverse=True)
+    # TODO: set constants for paths
+    template = environment.get_template(name=TEMPLATES_PATHS["index_html"])
+    output = template.render(posts=post_details)
 
-    posts_html_list = ""
-    for post in post_details:
-        title, link, date = post
-        post_part = (
-            index_post_list_template.replace("TITLE", title)
-            .replace("LINK", link)
-            .replace("DATE", get_jdate_str(date))
-        )
-        posts_html_list += post_part
+    return output
 
-    output = index_html_template.replace("POSTS", posts_html_list)
+
+def generate_post_html(
+    post_detail: PostDetail,
+) -> str:
+    # generate post.html file content
+    # TODO: set constants for paths
+    template = environment.get_template(name=TEMPLATES_PATHS["post_html"])
+    output = template.render(post=post_detail)
+
     return output
 
 
@@ -97,72 +107,63 @@ def copy_all(srcdir: str | Path, dstdir: str | Path) -> None:
         shutil.copy(os.path.join(srcdir, q), dstdir)
 
 
+def read_file(file_path: Path | str) -> str:
+    with open(file_path) as file:
+        content = file.read()
+    return content
+
+
+def write_file(file_path: Path | str, content: str) -> None:
+    with open(file_path, "w") as file:
+        file.write(content)
+
+
 if __name__ == "__main__":
-    html_post_template_filename = "theme/post.html"
-    html_index_template_filename = "theme/index.html"
-    html_index_post_list_template_filename = "theme/index_post_list.html"
-
-    with (
-        open(html_post_template_filename) as html_post_template_file,
-        open(html_index_template_filename) as html_index_template_file,
-        open(
-            html_index_post_list_template_filename
-        ) as html_index_post_list_template_file,
-    ):
-        # read files
-        html_post_template = html_post_template_file.read()
-        html_index_template = html_index_template_file.read()
-        html_index_post_list_template = html_index_post_list_template_file.read()
-
+    # create output directory
     os.makedirs("output", exist_ok=True)
-    # copy_all('theme/', )
+    # TODO: use static content for stylesheets in jinja templates
+    # copy stylesheets
     shutil.copy("theme/post_stylesheet.css", "output")
     shutil.copy("theme/index_stylesheet.css", "output")
 
+    # copy images
     copy_all("content/img/", "output/img/")
 
-    mdfiles = list(filter(lambda x: x.endswith(".md"), os.listdir("content")))
+    # read contents
+    posts_list_details: list[PostListDetail] = []
 
-    posts_details: list[PostDetail] = []
-    for md_filename in mdfiles:
-        with (
-            open(f"content/{md_filename}") as md_file,
-            open(f"output/{md_filename[:-3]}.html", "w") as output_file,
-        ):
-            # read markdown and convert to html
-            mdfile_text = md_file.read()
-            post_html, title, jalali_date = md_to_html(mdfile_text, html_post_template)
-            # write html output
-            output_file.write(post_html)
-            posts_details.append(
-                (
-                    title,
-                    md_filename[:-3] + ".html",
-                    jalali_date,
-                )
+    for md_filename in Path("content").glob("*.md"):
+        # read markdown and convert to html
+        mdfile_text = read_file(file_path=md_filename)
+        post_detail = read_post_from_markdown(md_text=mdfile_text)
+        post_html_content = generate_post_html(post_detail=post_detail)
+
+        # write html output
+        output_file_path = OUTPUT_DIR / md_filename.name.replace(
+            md_filename.suffix, ".html"
+        )
+        # TODO: create a seperate sub-directory for posts content
+        write_file(file_path=output_file_path, content=post_html_content)
+        posts_list_details.append(
+            PostListDetail(
+                title=post_detail.title,
+                url=output_file_path.name,
+                published_date=post_detail.published_date,
+                published_date_str=get_jdate_str(jdate=post_detail.published_date),
+                published_date_geo=post_detail.published_date.togregorian(),
             )
-            print("new content file added :", md_filename)
+        )
+        print("new content file added :", output_file_path)
 
     # generate index.html
-    index_html = generate_index(
-        html_index_template, html_index_post_list_template, posts_details
-    )
-    with open("output/index.html", "w") as index_html_file:
-        index_html_file.write(index_html)
-
+    index_html_content = generate_index_html(post_details=posts_list_details)
+    index_html_path = OUTPUT_DIR / "index.html"
+    write_file(file_path=index_html_path, content=index_html_content)
     print("index.html file created !")
 
     # generate rss feed
-    posts_list: list[PostListDetail] = [
-        {
-            "title": p[0],
-            "url": p[1],
-            "pub_date": date(year=p[2].year, month=p[2].month, day=p[2].day),
-        }
-        for p in posts_details
-    ]
-    feed_content = generate_feed(blog_info=BLOG_INFO, posts_list=posts_list)
-    feed_output_path = Path("output/rss.xml")
+    feed_content = generate_feed(blog_info=BLOG_INFO, posts_list=posts_list_details)
+    feed_output_path = OUTPUT_DIR / "rss.xml"
     with open(feed_output_path, "w") as file:
         file.write(feed_content)
 
