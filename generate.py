@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 import jdatetime
 import jinja2
 from markdown_it import MarkdownIt
+from markdown_it.renderer import RendererHTML
 
 from feedgen import generate_feed
 from models import BlogInfo, PostDetail, PostListDetail
@@ -31,7 +32,46 @@ template_environment = jinja2.Environment(
 )
 
 
-def read_post_from_markdown(md_text: str) -> PostDetail:
+class CustomRenderer(RendererHTML):
+    STATIC_PREFIX: str = ""
+
+    def image(self, tokens, idx, options, env) -> str:  # noqa : ANN1001
+        # check the image src is a local path
+
+        # TODO: set the img dir variable
+        relative_image = re.compile(r".?/?(?P<path>img/.*)")
+        token = tokens[idx]
+        image_src = token.attrs.get("src")
+        if (
+            isinstance(image_src, str)
+            and (image_path_match := relative_image.match(image_src)) is not None
+        ):
+            image_path = image_path_match.group("path")
+            # check alt text
+            if token.children:
+                token.attrSet(
+                    "alt", self.renderInlineAsText(token.children, options, env)
+                )
+            else:
+                token.attrSet("alt", "")
+            # remove src attr
+            del token.attrs["src"]
+            attrs_string = self.renderAttrs(token=token)
+            rendered_image = (
+                f"<img {attrs_string} src='{self.STATIC_PREFIX}{image_path}' />"
+            )
+            return rendered_image
+        return super().image(tokens, idx, options, env)
+
+
+mdparser = MarkdownIt("commonmark", renderer_cls=CustomRenderer)
+
+
+def read_post_from_markdown(md_file_path: str | Path) -> PostDetail:
+    # read file content
+    md_text = read_file(file_path=md_file_path)
+
+    # extract title and published_date
     lines = md_text.split("---\n")
     header_lines = lines[0]
     body_text = "---\n".join(lines[1:])
@@ -41,7 +81,9 @@ def read_post_from_markdown(md_text: str) -> PostDetail:
         )
     except AttributeError as err:
         # TODO: show file name in error message
-        raise ValueError("post does not have title or title is invalid !") from err
+        raise ValueError(
+            f'post "{md_file_path}" does not have title or title is invalid !'
+        ) from err
 
     try:
         date_str = re.search(
@@ -49,7 +91,9 @@ def read_post_from_markdown(md_text: str) -> PostDetail:
         ).group("date")
     except AttributeError as err:
         # TODO: show file name in error message
-        raise ValueError("post does not have date or date is invalid !") from err
+        raise ValueError(
+            f'post "{md_file_path}" does not have date or date is invalid !'
+        ) from err
 
     date_vars = [int(item) for item in date_str.split("-")]
     jdate = jdatetime.date(
@@ -59,7 +103,6 @@ def read_post_from_markdown(md_text: str) -> PostDetail:
         locale=jdatetime.FA_LOCALE,
     )
 
-    mdparser = MarkdownIt()
     body_html = mdparser.render(body_text)
     post_object = PostDetail(title=title, content=body_html, published_date=jdate)
 
@@ -130,6 +173,7 @@ if __name__ == "__main__":
         else static_prefix_url + "/"
     )
     template_environment.globals["STATIC_PREFIX"] = static_prefix_url
+    CustomRenderer.STATIC_PREFIX = static_prefix_url
 
     # create output directories
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
@@ -144,15 +188,14 @@ if __name__ == "__main__":
     # read contents
     posts_list_details: list[PostListDetail] = []
 
-    for md_filename in CONTENT_DIR.glob("*.md"):
+    for md_file_path in CONTENT_DIR.glob("*.md"):
         # read markdown and convert to html
-        mdfile_text = read_file(file_path=md_filename)
-        post_detail = read_post_from_markdown(md_text=mdfile_text)
+        post_detail = read_post_from_markdown(md_file_path=md_file_path)
         post_html_content = generate_post_html(post_detail=post_detail)
 
         # write html output
-        output_file_path = BLOG_DIR / md_filename.name.replace(
-            md_filename.suffix, ".html"
+        output_file_path = BLOG_DIR / md_file_path.name.replace(
+            md_file_path.suffix, ".html"
         )
         write_file(file_path=output_file_path, content=post_html_content)
         posts_list_details.append(
