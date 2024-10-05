@@ -1,0 +1,12 @@
+# The base URL of the site
+base_url = "https://example.com"
+
+# the website title
+title = "Website Title"
+
+# The site description, will be used in feeds
+description = "Add Some Description here"
+
+# When set to "true", a feed is automatically generated.
+generate_feed = true
+# the feed url will be : base_url/rss.xml

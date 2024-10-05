@@ -1,7 +1,11 @@
+#!/bin/python3
+
 import os
 import re
 import shutil
+import tomllib
 from pathlib import Path
+from urllib.parse import urljoin
 
 import jdatetime
 import jinja2
@@ -11,13 +15,6 @@ from feedgen import generate_feed
 from models import BlogInfo, PostDetail, PostListDetail
 
 OUTPUT_DIR = Path("output")
-
-BLOG_INFO = BlogInfo(
-    title="My Blog Name",
-    description="Add here some description",
-    website_url="https://example.com/blog",
-    feed_url="https://example.com/blog/rss.xml",
-)
 
 TEMPLATES_PATHS = {
     "index_html": "index.html",
@@ -119,6 +116,20 @@ def write_file(file_path: Path | str, content: str) -> None:
 
 
 if __name__ == "__main__":
+    # read config file
+    with open("config.toml", "rb") as file:
+        config_data = tomllib.load(file)
+
+    blog_info = BlogInfo(
+        title=config_data["title"],
+        description=config_data["description"],
+        website_url=config_data["base_url"],
+        feed_url=urljoin(config_data["base_url"], "rss.xml"),
+    )
+    should_generate_feed: bool = config_data["generate_feed"]
+    # set blog title in base.html
+    environment.globals["website_title"] = blog_info.title
+
     # create output directory
     os.makedirs("output", exist_ok=True)
     # TODO: use static content for stylesheets in jinja templates
@@ -162,9 +173,10 @@ if __name__ == "__main__":
     print("index.html file created !")
 
     # generate rss feed
-    feed_content = generate_feed(blog_info=BLOG_INFO, posts_list=posts_list_details)
-    feed_output_path = OUTPUT_DIR / "rss.xml"
-    with open(feed_output_path, "w") as file:
-        file.write(feed_content)
+    if should_generate_feed:
+        feed_content = generate_feed(blog_info=blog_info, posts_list=posts_list_details)
+        feed_output_path = OUTPUT_DIR / "rss.xml"
+        with open(feed_output_path, "w") as file:
+            file.write(feed_content)
 
-    print("rss feed generated :", feed_output_path)
+        print("rss feed generated :", feed_output_path)
