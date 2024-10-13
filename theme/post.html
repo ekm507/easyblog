@@ -1,21 +1,10 @@
-<!doctype html>
-<html lang=en>
+{% extends 'base.html' %}
 
-<head>
-    <meta charset=UTF-8>
-    <meta content="IE=edge" http-equiv=X-UA-Compatible>
-    <meta content="width=device-width,initial-scale=1" name=viewport>
-    <meta content=#00bbdd name=theme-color>
-    <title>TITLE</title>
-    <link href=post_stylesheet.css rel=stylesheet>
-    <style>
-        :root {
-            --primary-color-alpha: rgba(0, 208, 255, 0.2);
-            --primary-color: #00bbdd
-        }
-    </style>
 
-<body>
+{% block title %} - {{post.title}}{% endblock %}
+
+{% block main %}
+
     <header>
         <div class=container id=main>
             <div class="crt scanlines">
@@ -24,19 +13,10 @@
 ⢠⠈⢰⠘⠴⠝⠀⢀⠆⠤⠪⠅⠀⠀⢠⠀⣔⡂⠘⠬⠮⠂⠘⠤⠤⠜⠤⠣⠣⠃⠐⢽⠤⠜⠘⠤⠤⠜⠐⢽
 ⠈⠒⠊⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠈⠒⠒⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠁⠀⠈⠁</span></code></pre>
             </div>
-    
-    </header>
-    <div class=container id=main  dir="rtl">
 
-        <ul>
-            
-            POST
-        </ul>
-    </div>
-    </div>
-    <footer id=site-footer>
-        <p title="Last built at 2024-02-19 13:55 +00:00">© Duckquill, 2024
-        <p><a href=https://codeberg.org/daudix/duckquill>Website source</a>
-        <p><small>Powered by <a href=https://www.getzola.org>Zola</a> and <a
-                    href=https://daudix.codeberg.page/duckquill>Duckquill</a></small>
-    </footer>
+    </header>
+
+<div class="container" id="main" dir="rtl">
+	{{ post.content | safe }}
+</div>
+{% endblock %}

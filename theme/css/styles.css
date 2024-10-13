@@ -31,8 +31,8 @@
     --content-width: 720px;
     --edge-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     --font-monospace: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
-    --font-serif: Rockwell, Sahel;
-    --font-system: system-ui, sans-serif;
+    --font-serif: Sahel;
+    --font-system: Sahel;
     --rounded-corner-small: 8px;
     --rounded-corner: 12px;
     --shadow-raised: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 2px 6px 2px rgba(0, 0, 0, 0.14), 0 4px 12px 4px rgba(0, 0, 0, 0.06);
@@ -47,7 +47,7 @@
     :root {
         color-scheme: dark;
         --bg-color: var(--bg-color-d);
-        --fg-color: rgb(184, 184, 184);
+        --fg-color: rgb(255, 255, 255);
         --fg-muted-1: rgba(255, 255, 255, 0.05);
         --fg-muted-2: rgba(255, 255, 255, 0.1);
         --fg-muted-3: rgba(255, 255, 255, 0.2);
@@ -81,7 +81,8 @@ html {
 html,
 body {
     margin: 0;
-    padding: 0
+    padding: 0;
+	direction:rtl;
 }
 
 body {
@@ -188,19 +189,19 @@ h6 {
 }
 
 a {
-    color: var(--primay-color);
-    font-weight: bold
+    color: var(--fg-color);
+    font-weight: bold;
+    text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline wavy;
-    -webkit-text-decoration: underline wavy
+    color: var(--orange-fg);
 }
 
 a:visited {
-    color: var(--primay-color);
-
+    color: #A0A0A0;
 }
+
 
 small {
     color: var(--fg-muted-5);
@@ -725,16 +726,33 @@ section#comments .comment footer .faves::before {
 }
 
 #site-footer {
+	min-height: 30px;
     text-align: center;
-    padding: 3rem 0 3rem;
+    padding:8px 0px 15px;
     font-size: 1rem;
     margin-top: 4rem
+    transition: all .1s ease-out;
 }
 
+#site-footer p{
+	margin:8px auto;
+}
 #site-footer details {
     all: unset;
     color: var(--fg-muted-5);
     font-size: .8rem
+}
+#site-footer:hover{
+    background-color: rgba(255,255,255,.5);
+    color: #464646;
+}
+
+#site-footer a {
+    text-decoration: none;
+}
+
+#site-footer a:hover {
+    color: rgb(0, 81, 255);
 }
 
 #johnvertisement {
@@ -1021,4 +1039,17 @@ img:not(.no-hover):hover {
 
 .tags .tag::before {
     content: "#"
+}
+
+@media screen and (max-width: 400px) {
+    .date {
+      display: none;
+    color: var(--primary-color);
+
+    }
+  }
+
+.date {
+    color: var(--primary-color);
+
 }

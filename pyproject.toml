@@ -1,0 +1,43 @@
+[project]
+name = "easyblog"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Erfan Kheyrollahi", email = "ekm507@gmail.com" },
+    { name = "Amir Aref", email = "amiraref808@gmail.com" }
+]
+dependencies = [
+    "jdatetime>=5.0.0",
+    "markdown-it-py>=3.0.0",
+    "jinja2>=3.1.4",
+]
+readme = "README.md"
+requires-python = ">= 3.11"
+
+[tool.rye]
+managed = true
+virtual = true
+dev-dependencies = []
+
+
+[tool.behavior]
+use-uv = true
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "N",  # pep8 naming
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG001", # unused arguments in functions
+    "ASYNC", # flake8 async
+    "LOG", # flake8 logging
+    "ANN" # flake8 annotations,
+]
+unfixable = []
+
+ignore = ["ANN101"]
