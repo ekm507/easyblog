@@ -2,10 +2,10 @@
 base_url = "https://example.com"
 
 # the website title
-title = "Website Title"
+title = "وبلاگ من"
 
 # The site description, will be used in feeds
-description = "Add Some Description here"
+description = "توضیحات وبلاگ خود را در اینجا بنویسید"
 
 # When set to "true", a feed is automatically generated.
 generate_feed = true

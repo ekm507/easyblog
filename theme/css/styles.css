@@ -81,7 +81,8 @@ html {
 html,
 body {
     margin: 0;
-    padding: 0
+    padding: 0;
+	direction:rtl;
 }
 
 body {
@@ -725,16 +726,33 @@ section#comments .comment footer .faves::before {
 }
 
 #site-footer {
+	min-height: 30px;
     text-align: center;
-    padding: 3rem 0 3rem;
+    padding:8px 0px 15px;
     font-size: 1rem;
     margin-top: 4rem
+    transition: all .1s ease-out;
 }
 
+#site-footer p{
+	margin:8px auto;
+}
 #site-footer details {
     all: unset;
     color: var(--fg-muted-5);
     font-size: .8rem
+}
+#site-footer:hover{
+    background-color: rgba(255,255,255,.5);
+    color: #464646;
+}
+
+#site-footer a {
+    text-decoration: none;
+}
+
+#site-footer a:hover {
+    color: rgb(0, 81, 255);
 }
 
 #johnvertisement {

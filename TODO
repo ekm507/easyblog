@@ -1,20 +1,17 @@
-- [x] read the website information from a toml file
-- [x] use jinja tmepleates rendering for themes/templeates
-- [x] add pre-commit hooks
-- [x] set a directory fot posts content (subdir in output)
+- [x] read the website information from a `config.toml` file
+- [x] use `jinja2` templates rendering for `theme`
+- [x] add `pre-commit` hooks
+- [x] set a directory for posts content (subdirectory in output)
 - [x] get website root URL and put other links based on it
 - [x] add favicon
-- [x] support other html files (static)
-- [ ] change the theme and make a clean structure
+- [x] support extra HTML files (static) from `theme/pages` directory
+- [x] make a clean structure for theme.
 - [ ] update README.md based on new themes structure
-- [ ] implement a way to overwrite the default theme (template files)
 - [ ] write github actions workflow
 - [ ] write tests
 
-
-
-
-# NOTE
-- all images should define in html files (not css)
-- put the theme images in theme directory
-- only supports local imgaes with relative file path from `content/img/` directory.
+## NOTE
+- all images URLs should define in HTML files (not CSS)
+- put the theme images in `theme/assets` directory
+- only supports local images with relative file path from `content/img/` directory.
+- extra pages (such as about) should go in `theme/pages` directory.

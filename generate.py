@@ -36,6 +36,7 @@ ASSETS_DIR = Path("theme/assets")
 
 template_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(THEME_DIR),
+    autoescape=True,
 )
 
 
